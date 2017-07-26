@@ -1,73 +1,56 @@
-import bpy
-
-
-def write_some_data(context, filepath, use_some_setting):
-    print("running write_some_data...")
-    f = open(filepath, 'w', encoding='utf-8')
-    f.write("Hello World %s" % use_some_setting)
-    f.close()
-
-    return {'FINISHED'}
-
-
-# ExportHelper is a helper class, defines filename and
-# invoke() function which calls the file selector.
-from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty, BoolProperty, EnumProperty
 from bpy.types import Operator
+from bpy_extras.io_utils import ExportHelper
+from bpy_extras.io_utils import ImportHelper
+import bpy
 
-
-class ExportSomeData(Operator, ExportHelper):
-    """This appears in the tooltip of the operator and in the generated docs"""
-    bl_idname = "export_test.some_data"  # important since its how bpy.ops.import_test.some_data is constructed
-    bl_label = "Export Some Data"
-
-    # ExportHelper mixin class uses this
-    filename_ext = ".txt"
-
-    filter_glob = StringProperty(
-            default="*.txt",
-            options={'HIDDEN'},
-            maxlen=255,  # Max internal buffer length, longer would be clamped.
-            )
-
-    # List of operator properties, the attributes will be assigned
-    # to the class instance from the operator settings before calling.
-    use_setting = BoolProperty(
-            name="Example Boolean",
-            description="Example Tooltip",
-            default=True,
-            )
-
-    type = EnumProperty(
-            name="Example Enum",
-            description="Choose between two items",
-            items=(('OPT_A', "First Option", "Description one"),
-                   ('OPT_B', "Second Option", "Description two")),
-            default='OPT_A',
-            )
+class ExportTimelineMarkers(Operator, ExportHelper):
+    """Export timeline markers to a CSV file"""
+    bl_idname = "export.timeline_markers"
+    bl_label = "Export timeline markers to a CSV file"
+    filename_ext = ".csv"
+    filter_glob = StringProperty(default="*.csv", options={'HIDDEN'}, maxlen=255)
 
     def execute(self, context):
-        return write_some_data(context, self.filepath, self.use_setting)
+        with open(filepath, 'w', encoding='utf-8') as f:
+            for marker in context.scene.timeline_markers:
+                f.write('{},{}\n'.format(marker.frame, marker.name))
 
+        return {'FINISHED'}
 
-# Only needed if you want to add into a dynamic menu
+class ImportTimelineMarkers(Operator, ImportHelper):
+    bl_idname = "import.timeline_markers"
+    bl_label = "Import timeline markers from a CSV file"
+    filename_ext = '.csv'
+    filter_glob = StringProperty(default='*.csv', options={'HIDDEN'})
+
+    def execute(self, context):
+        scene = context.scene
+        self.properties.filepath
+        with open(self.properties.filepath, 'r') as f:
+            for line in f:
+                frame, name = line.split(',')
+                context.scene.timeline_markers.new(name.strip(), frame=int(frame))
+
+        return {'FINISHED'}
+
 def menu_func_export(self, context):
-    self.layout.operator(ExportSomeData.bl_idname, text="Text Export Operator")
+    self.layout.operator(ExportTimelineMarkers.bl_idname, text="Export timeline markers as CSV")
 
+def menu_func_import(self, context):
+    self.layout.operator(ImportTimelineMarkers.bl_idname, text="Import timeline markers as CSV")
 
 def register():
-    bpy.utils.register_class(ExportSomeData)
+    bpy.utils.register_class(ExportTimelineMarkers)
+    bpy.utils.register_class(ImportTimelineMarkers)
     bpy.types.INFO_MT_file_export.append(menu_func_export)
-
+    bpy.types.INFO_MT_file_import.append(menu_func_import)
 
 def unregister():
-    bpy.utils.unregister_class(ExportSomeData)
+    bpy.utils.unregister_class(ExportTimelineMarkers)
+    bpy.utils.unregister_class(ImportTimelineMarkers)
     bpy.types.INFO_MT_file_export.remove(menu_func_export)
-
+    bpy.types.INFO_MT_file_import.remove(menu_func_import)
 
 if __name__ == "__main__":
     register()
-
-    # test call
-    bpy.ops.export_test.some_data('INVOKE_DEFAULT')
