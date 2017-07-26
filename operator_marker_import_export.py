@@ -25,7 +25,7 @@ class ExportTimelineMarkers(Operator, ExportHelper):
     filter_glob = StringProperty(default="*.csv", options={'HIDDEN'}, maxlen=255)
 
     def execute(self, context):
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(self.properties.filepath, 'w', encoding='utf-8') as f:
             for marker in context.scene.timeline_markers:
                 f.write('{},{}\n'.format(marker.frame, marker.name))
 
