@@ -4,10 +4,23 @@ from bpy_extras.io_utils import ExportHelper
 from bpy_extras.io_utils import ImportHelper
 import bpy
 
+bl_info = {
+    "name": "Import / Export Markers as CSV",
+    "author": "Gabriel Montagné Láscaris-Comneno <gabriel@tibas.london>",
+    "version": (1, 0, 0),
+    "blender": (2, 78),
+    "location": "File > Import / File > Export",
+    "description": "Add import export operators for timeline markers to CSV files",
+    "warning": "",
+    "wiki_url": "github.com/gabrielmontagne/blender-addon-import-export-timeline-markers",
+    "tracker_url": "github.com/gabrielmontagne/blender-addon-import-export-timeline-markers/issues",
+    "category": "Import-Export"
+}
+
 class ExportTimelineMarkers(Operator, ExportHelper):
-    """Export timeline markers to a CSV file"""
+    """Export Timeline Markers to CSV File"""
     bl_idname = "export.timeline_markers"
-    bl_label = "Export timeline markers to a CSV file"
+    bl_label = "Export Timeline Markers to CSV File"
     filename_ext = ".csv"
     filter_glob = StringProperty(default="*.csv", options={'HIDDEN'}, maxlen=255)
 
@@ -19,8 +32,9 @@ class ExportTimelineMarkers(Operator, ExportHelper):
         return {'FINISHED'}
 
 class ImportTimelineMarkers(Operator, ImportHelper):
+    """Import Timeline Markers from CSV File"""
     bl_idname = "import.timeline_markers"
-    bl_label = "Import timeline markers from a CSV file"
+    bl_label = "Import Timeline Markers From a CSV File"
     filename_ext = '.csv'
     filter_glob = StringProperty(default='*.csv', options={'HIDDEN'})
 
@@ -35,10 +49,10 @@ class ImportTimelineMarkers(Operator, ImportHelper):
         return {'FINISHED'}
 
 def menu_func_export(self, context):
-    self.layout.operator(ExportTimelineMarkers.bl_idname, text="Export timeline markers as CSV")
+    self.layout.operator(ExportTimelineMarkers.bl_idname, text="Export Timeline Markers as CSV")
 
 def menu_func_import(self, context):
-    self.layout.operator(ImportTimelineMarkers.bl_idname, text="Import timeline markers as CSV")
+    self.layout.operator(ImportTimelineMarkers.bl_idname, text="Import Timeline Markers as CSV")
 
 def register():
     bpy.utils.register_class(ExportTimelineMarkers)
