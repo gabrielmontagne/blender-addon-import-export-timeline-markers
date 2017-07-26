@@ -1,1 +1,6 @@
-Blender addon to import and export timeline markers.
+Blender addon to import and export timeline markers from CSV
+============================================================
+Gabriel Montagné Láscaris-Comneno <gabriel@tibas.london>
+
+
+
